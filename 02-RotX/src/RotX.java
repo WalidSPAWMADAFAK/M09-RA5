@@ -1,3 +1,4 @@
+package src;
 public class RotX {
 
     static String majuscules = "AÁÀBCÇDEÉÈFGHIÍÌÏJKLMNÑOÓÒPQRSTUÚÙÜVWXYZ";
