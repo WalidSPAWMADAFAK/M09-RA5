@@ -122,6 +122,7 @@ public class Monoalfabetic {
     String xifrat2 = xifraMonoAlfa(text2);
     String xifrat3 = xifraMonoAlfa(text3);
 
+
     System.out.println(text1 + " -> " + xifrat1);
     System.out.println(text2 + " -> " + xifrat2);
     System.out.println(text3 + " -> " + xifrat3);
