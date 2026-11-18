@@ -2,131 +2,103 @@ import java.util.Random;
 
 public class Polialfabetic {
 
-    static String alfabet = "aáàbcçdeéèfghiíïjklmnñoòópqrstuúüvwxyz";
+    private static final char[] alfabet = "AÀÁBCÇDEÉÈFGHIÍÌÏJKLMNÑOÓÒPQRSTUÚÙÜVWXYZ".toCharArray();
+    private static char[] alfabetPermutat;
+    private static Random random;
+    private static final int clauSecreta = 1234;
 
-    static char[] alfabetPermutat;
-    static Random random;
-    static long clauSecreta = 12345678;
-    
-    public static void initRandom(long clau) {
-       random = new Random(clau);
+    public static void initRandom(int clau) {
+        random = new Random(clau);
     }
+
     public static void permutaAlfabet() {
-        alfabetPermutat = alfabet.toCharArray();
+        alfabetPermutat = alfabet.clone();
 
         for (int i = alfabetPermutat.length - 1; i > 0; i--) {
-            int posicio = random.nextInt(i + 1);
-            char temporal = alfabetPermutat[i];
-            alfabetPermutat[i] = alfabetPermutat[posicio];
-            alfabetPermutat[posicio] = temporal;
-         }
+            int j = random.nextInt(i + 1);
+            char temp = alfabetPermutat[i];
+            alfabetPermutat[i] = alfabetPermutat[j];
+            alfabetPermutat[j] = temp;
+        }
     }
-    public static String xifraPoliAlfa(String msg) {
 
-        String resultat = "";
-        int comptadorLletres = 0;
+    public static String xifraPoliAlfa(String msg) {
+        StringBuilder resultat = new StringBuilder();
 
         for (int i = 0; i < msg.length(); i++) {
+            char lletraOriginal = msg.charAt(i);
+            boolean esMinuscula = Character.isLowerCase(lletraOriginal);
+            char lletraMajuscula = Character.toUpperCase(lletraOriginal);
+            char lletraXifrada = lletraOriginal;
 
-            char lletra = msg.charAt(i);
-            int posicio = alfabet.indexOf(Character.toLowerCase(lletra));
+            permutaAlfabet();
 
-            if (posicio != -1) {
-
-                if (comptadorLletres % 2 == 0) {
-                    permutaAlfabet();
+            for (int j = 0; j < alfabet.length; j++) {
+                if (alfabet[j] == lletraMajuscula) {
+                    char lletraPermutada = alfabetPermutat[j];
+                    if (esMinuscula) {
+                        lletraXifrada = Character.toLowerCase(lletraPermutada);
+                    } else {
+                        lletraXifrada = lletraPermutada;
+                    }
+                    break;
                 }
-
-                char lletraXifrada = alfabetPermutat[posicio];
-
-                if (Character.isUpperCase(lletra)) {
-                    lletraXifrada = Character.toUpperCase(lletraXifrada);
-                }
-
-                resultat += lletraXifrada;
-                comptadorLletres++;
-
-            } else {
-                resultat += lletra;
             }
+
+            resultat.append(lletraXifrada);
         }
 
-        return resultat;
+        return resultat.toString();
     }
 
     public static String desxifraPoliAlfa(String msgXifrat) {
-
-        String resultat = "";
-        int comptadorLletres = 0;
+        StringBuilder resultat = new StringBuilder();
 
         for (int i = 0; i < msgXifrat.length(); i++) {
+            char lletraXifrada = msgXifrat.charAt(i);
+            boolean esMinuscula = Character.isLowerCase(lletraXifrada);
+            char lletraMajuscula = Character.toUpperCase(lletraXifrada);
+            char lletraOriginal = lletraXifrada;
 
-            char lletra = msgXifrat.charAt(i);
+            permutaAlfabet();
 
-            if (Character.isLetter(lletra)) {
-
-                if (comptadorLletres % 2 == 0) {
-                    permutaAlfabet();
-                }
-
-                int posicio = -1;
-
-                for (int j = 0; j < alfabetPermutat.length; j++) {
-
-                    if (Character.toLowerCase(alfabetPermutat[j])
-                            == Character.toLowerCase(lletra)) {
-                        posicio = j;
-                        break;
+            for (int j = 0; j < alfabetPermutat.length; j++) {
+                if (alfabetPermutat[j] == lletraMajuscula) {
+                    char lletraDesxifrada = alfabet[j];
+                    if (esMinuscula) {
+                        lletraOriginal = Character.toLowerCase(lletraDesxifrada);
+                    } else {
+                        lletraOriginal = lletraDesxifrada;
                     }
+                    break;
                 }
+            }
 
-            if (posicio != -1) {
-
-                    char lletraDesxifrada = alfabet.charAt(posicio);
-
-                    if (Character.isUpperCase(lletra)) {
-                       lletraDesxifrada = Character.toUpperCase(lletraDesxifrada);
-                    }
-
-                  resultat += lletraDesxifrada;
-
-                } else {
-                    resultat += lletra;
-                }
-                comptadorLletres++;
-
-            } else {
-                resultat += lletra;
-         }
+            resultat.append(lletraOriginal);
         }
-        return resultat;
+
+        return resultat.toString();
     }
+
     public static void main(String[] args) {
+        String msgs[] = {
+            "Test 01 àrbitre, coixí, Perímetre",
+            "Test 02 Taüll, DÍA, año",
+            "Test 03 Peça, Òrrius, Bòvila"};
+        String msgsXifrats[] = new String[msgs.length];
 
-        String[] msgs = {
-                "Test 01 àrbitre, coixí, Perímetre",
-                "Test 02 Taüll, DÍA, año",
-                "Test 03 Peça, Òrrius, Bòvila" };
-
-        String[] msgsXifrats = new String[msgs.length];
-
-        System.out.println("Xifratge:\n----------");
-
+        System.out.println("Xifratge:\n--------");
         for (int i = 0; i < msgs.length; i++) {
-
             initRandom(clauSecreta);
-          msgsXifrats[i] = xifraPoliAlfa(msgs[i]);
-
-            System.out.printf("%-34s -> %s%n",msgs[i],msgsXifrats[i] );
+            msgsXifrats[i] = xifraPoliAlfa(msgs[i]);
+            System.out.printf("%-34s -> %s%n", msgs[i], msgsXifrats[i]);
         }
 
-        System.out.println("Desxifratge:\n------------");
-
+        System.out.println("\nDesxifratge:\n------------");
         for (int i = 0; i < msgs.length; i++) {
-
             initRandom(clauSecreta);
             String msg = desxifraPoliAlfa(msgsXifrats[i]);
-            System.out.printf("%-34s -> %s%n",msgsXifrats[i], msg);
-         }
-  }
+            System.out.printf("%-34s -> %s%n", msgsXifrats[i], msg);
+        }
+    }
 }
