@@ -35,51 +35,58 @@ public class Hashes {
         String chars = "abcdefABCDEF1234567890!";
         npass = 0;
 
-        for (int longitud = 1; longitud <= 6; longitud++) {
-            String resultat = provar("", longitud, chars, alg, hash, salt);
+        for (int i = 0; i < chars.length(); i++) {
+            String p1 = String.valueOf(chars.charAt(i));
+            String r = provar(p1, alg, hash, salt);
+            if (r != null) return r;
 
-            if (resultat != null) {
-                return resultat;
+            for (int j = 0; j < chars.length(); j++) {
+                String p2 = p1 + chars.charAt(j);
+                r = provar(p2, alg, hash, salt);
+                if (r != null) return r;
+
+                for (int k = 0; k < chars.length(); k++) {
+                    String p3 = p2 + chars.charAt(k);
+                    r = provar(p3, alg, hash, salt);
+                    if (r != null) return r;
+
+                    for (int l = 0; l < chars.length(); l++) {
+                        String p4 = p3 + chars.charAt(l);
+                        r = provar(p4, alg, hash, salt);
+                        if (r != null) return r;
+
+                        for (int m = 0; m < chars.length(); m++) {
+                            String p5 = p4 + chars.charAt(m);
+                            r = provar(p5, alg, hash, salt);
+                            if (r != null) return r;
+
+                            for (int n = 0; n < chars.length(); n++) {
+                                String p6 = p5 + chars.charAt(n);
+                                r = provar(p6, alg, hash, salt);
+                                if (r != null) return r;
+                            }
+                        }
+                    }
+                }
             }
         }
 
         return null;
     }
 
-    private String provar(String actual, int longitud, String chars,
-                          String alg, String hash, String salt) throws Exception {
+    private String provar(String pw, String alg, String hash, String salt) throws Exception {
+        npass++;
 
-        if (actual.length() == longitud) {
-            npass++;
+        String resultat;
 
-            String resultat;
-
-            if (alg.equals("SHA-512")) {
-                resultat = getSHA512AmbSalt(actual, salt);
-            } else {
-                resultat = getPBKDF2AmbSalt(actual, salt);
-            }
-
-            if (resultat.equalsIgnoreCase(hash)) {
-                return actual;
-            }
-
-            return null;
+        if (alg.equals("SHA-512")) {
+            resultat = getSHA512AmbSalt(pw, salt);
+        } else {
+            resultat = getPBKDF2AmbSalt(pw, salt);
         }
 
-        for (int i = 0; i < chars.length(); i++) {
-            String resultat = provar(
-                    actual + chars.charAt(i),
-                    longitud,
-                    chars,
-                    alg,
-                    hash,
-                    salt
-            );
-
-            if (resultat != null) {
-                return resultat;
-            }
+        if (resultat.equalsIgnoreCase(hash)) {
+            return pw;
         }
 
         return null;
@@ -93,7 +100,7 @@ public class Hashes {
         long hours = (diff / (1000 * 60 * 60)) % 24;
         long days = diff / (1000 * 60 * 60 * 24);
 
-        return String.format("%d dies/%d hores / %d minuts / %d segons / %d millis", 
+        return String.format("%d dies/%d hores / %d minuts / %d segons / %d millis",
                 days, hours, minutes, seconds, millis);
     }
 
@@ -112,20 +119,20 @@ public class Hashes {
         String[] algorismes = {"SHA-512", "PBKDF2"};
 
         for (int i = 0; i < aHashes.length; i++) {
-            System.out.printf("----------------------------------------\n");
-            System.out.printf("Algorisme: %s\n", algorismes[i]);
-            System.out.printf("Hash: %s\n", aHashes[i]);
-            System.out.printf("----------------------------------------\n");
-            System.out.printf("-- Inici de força bruta ---\n");
+            System.out.printf("----------------------------------------%n");
+            System.out.printf("Algorisme: %s%n", algorismes[i]);
+            System.out.printf("Hash: %s%n", aHashes[i]);
+            System.out.printf("----------------------------------------%n");
+            System.out.printf("-- Inici de força bruta ---%n");
 
             long t1 = System.currentTimeMillis();
             pwTrobat = h.forcaBruta(algorismes[i], aHashes[i], salt);
             long t2 = System.currentTimeMillis();
 
-            System.out.printf("Pass: %s\n", pwTrobat);
-            System.out.printf("Provats: %d\n", h.npass);
-            System.out.printf("Temps: %s\n", h.getInterval(t1, t2));
-            System.out.printf("\n\n");
+            System.out.printf("Pass: %s%n", pwTrobat);
+            System.out.printf("Provats: %d%n", h.npass);
+            System.out.printf("Temps: %s%n", h.getInterval(t1, t2));
+            System.out.printf("%n%n");
         }
     }
 }
